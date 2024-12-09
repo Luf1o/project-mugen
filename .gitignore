@@ -1,0 +1,15 @@
+# dotenv
+*
+
+!.gitignore
+!.app.py
+!.main.py
+!.templates/
+!.models/
+!.static/
+!.users/
+!.requirements.txt
+
+
+
+#envfile is not uploadeda
