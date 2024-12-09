@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michibiku</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="title-container">
+        <h1 class="title">Michibiku</h1>
+    </div>
+    <div class="chat-container">
+        <div id="chat-box" class="chat-box"></div>
+        <form id="chat-form">
+            <input type="text" id="message" placeholder="Type a message..." autocomplete="off" required>
+            <button type="submit" id="send-button">
+                <img src="/static/send-icon.png" alt="Send" />
+            </button>
+        </form>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+<script>
+    const socket = io();
+
+    const chatForm = document.getElementById("chat-form");
+    const chatBox = document.getElementById("chat-box");
+
+    chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const messageInput = document.getElementById("message");
+        const userMessage = messageInput.value.trim();
+
+        if (userMessage === "") return;
+
+        // Append user message to chatbox
+        const userBubble = document.createElement("div");
+        userBubble.className = "chat-bubble user-message";
+        userBubble.textContent = userMessage;
+        chatBox.appendChild(userBubble);
+
+        messageInput.value = "";
+
+        // Add loading bubble
+        const loadingBubble = document.createElement("div");
+        loadingBubble.className = "chat-bubble bot-message loading";
+        loadingBubble.innerHTML = "<span class='dots'><span>.</span><span>.</span><span>.</span></span>";
+        chatBox.appendChild(loadingBubble);
+
+        // Scroll to the bottom of the chatbox
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Send message to the server
+        socket.emit("user_message", { message: userMessage });
+    });
+
+    // Receive response from the server
+    socket.on("bot_response", (data) => {
+        // Remove loading bubble
+        const loadingBubble = document.querySelector(".loading");
+        if (loadingBubble) chatBox.removeChild(loadingBubble);
+
+        // Add bot response
+        const botBubble = document.createElement("div");
+        botBubble.className = "chat-bubble bot-message";
+        botBubble.textContent = data.response || "Sorry, something went wrong!";
+        chatBox.appendChild(botBubble);
+
+        // Scroll to the bottom of the chatbox
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    function organizeLLMOutput(text) {
+    /**
+     * Organizes LLM output into a structured format based on numbered references (e.g., .1, .2).
+     *
+     * @param {string} text - The raw LLM output.
+     * @returns {Object} - A structured object where keys are item numbers (e.g., '1', '2') and values are the corresponding descriptions.
+     */
+    
+    // Regex to match each numbered item and its content
+    const regex = /\d+\.\s*([^\d]+?)(?=\s*\d+\.\s*|$)/gs;
+    const matches = [...text.matchAll(regex)];
+    
+    // Create a structured object
+    const structuredOutput = {};
+    matches.forEach((match, index) => {
+        structuredOutput[index + 1] = match[1].trim();
+    });
+
+    return structuredOutput;
+}
+</script>
+
+</body>
+</html>

@@ -1,15 +1,16 @@
-# dotenv
-*
+# Specific files to ignore
+.gitignore
+.envfile
 
-!.gitignore
-!.app.py
-!.main.py
-!.templates/
-!.models/
-!.static/
-!.users/
-!.requirements.txt
+# Directories to ignore (partially)
+__pycache__
 
+# Mugen model directory (excluding specific files)
+mugen/models/*.pyc  # Compiled Python bytecode
 
-
-#envfile is not uploadeda
+# Include specific files/directories within models
+!mugen/models/agent.py
+!mugen/models/main.py
+!mugen/models/model.py
+!mugen/models/templates/
+!mugen/models/static/
